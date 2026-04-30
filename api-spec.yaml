@@ -1,0 +1,551 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  description: |
+    RESTful API for managing todo items. This specification is the contract for
+    frontend integration and automated documentation.
+
+    **Authentication:** Endpoints declare optional bearer-token security. Until
+    auth is implemented, calls may omit the `Authorization` header; production
+    deployments should enforce the scheme described in `components.securitySchemes`.
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/Tymeline-Tech/todo-list-application
+    email: api-support@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://api.todo-app.local/v1
+    description: Production (placeholder host)
+
+tags:
+  - name: Todos
+    description: Create, read, update, and delete todo items
+
+paths:
+  /todos:
+    get:
+      tags: [Todos]
+      summary: List all todos
+      description: Returns every todo item. Ordering is implementation-defined.
+      operationId: listTodos
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CompletedFilter'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TodoItem'
+              examples:
+                sample:
+                  summary: Two items
+                  value:
+                    data:
+                      - id: 550e8400-e29b-41d4-a716-446655440001
+                        title: Buy groceries
+                        description: Milk, eggs, bread
+                        completed: false
+                        priority: high
+                        dueDate: '2026-05-15'
+                        createdAt: '2026-04-30T12:00:00.000Z'
+                        updatedAt: '2026-04-30T12:00:00.000Z'
+                      - id: 550e8400-e29b-41d4-a716-446655440002
+                        title: Ship release
+                        description: null
+                        completed: true
+                        priority: medium
+                        dueDate: null
+                        createdAt: '2026-04-29T10:30:00.000Z'
+                        updatedAt: '2026-04-30T09:15:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags: [Todos]
+      summary: Create a todo
+      description: Creates a new todo item. The server assigns `id`, `createdAt`, and `updatedAt`.
+      operationId: createTodo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItemCreate'
+            examples:
+              minimal:
+                summary: Title only
+                value:
+                  title: Walk the dog
+              full:
+                summary: All optional fields
+                value:
+                  title: Prepare slides
+                  description: Q2 roadmap
+                  completed: false
+                  priority: low
+                  dueDate: '2026-05-01'
+      responses:
+        '201':
+          description: Todo created
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+                example: /todos/550e8400-e29b-41d4-a716-446655440001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemEnvelope'
+              examples:
+                created:
+                  value:
+                    data:
+                      id: 550e8400-e29b-41d4-a716-446655440001
+                      title: Walk the dog
+                      description: null
+                      completed: false
+                      priority: medium
+                      dueDate: null
+                      createdAt: '2026-04-30T12:00:00.000Z'
+                      updatedAt: '2026-04-30T12:00:00.000Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /todos/{todoId}:
+    parameters:
+      - $ref: '#/components/parameters/TodoId'
+
+    get:
+      tags: [Todos]
+      summary: Get a todo by ID
+      operationId: getTodoById
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Todo found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemEnvelope'
+              examples:
+                sample:
+                  value:
+                    data:
+                      id: 550e8400-e29b-41d4-a716-446655440001
+                      title: Buy groceries
+                      description: Milk, eggs, bread
+                      completed: false
+                      priority: high
+                      dueDate: '2026-05-15'
+                      createdAt: '2026-04-30T12:00:00.000Z'
+                      updatedAt: '2026-04-30T12:00:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags: [Todos]
+      summary: Replace a todo
+      description: Replaces the entire todo resource. Omitted optional fields should be treated as null or defaults per server rules.
+      operationId: replaceTodo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItemReplace'
+            examples:
+              sample:
+                value:
+                  title: Buy groceries — updated
+                  description: Organic only
+                  completed: true
+                  priority: high
+                  dueDate: '2026-05-16'
+      responses:
+        '200':
+          description: Todo updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemEnvelope'
+              examples:
+                updated:
+                  value:
+                    data:
+                      id: 550e8400-e29b-41d4-a716-446655440001
+                      title: Buy groceries — updated
+                      description: Organic only
+                      completed: true
+                      priority: high
+                      dueDate: '2026-05-16'
+                      createdAt: '2026-04-30T12:00:00.000Z'
+                      updatedAt: '2026-04-30T14:30:00.000Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags: [Todos]
+      summary: Patch todo
+      description: Applies a partial update. Only fields present in the body are modified.
+      operationId: patchTodo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItemPatch'
+            examples:
+              markComplete:
+                summary: Mark completed
+                value:
+                  completed: true
+              retitle:
+                summary: Change title
+                value:
+                  title: New title
+      responses:
+        '200':
+          description: Todo patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemEnvelope'
+              examples:
+                patched:
+                  value:
+                    data:
+                      id: 550e8400-e29b-41d4-a716-446655440001
+                      title: New title
+                      description: null
+                      completed: true
+                      priority: medium
+                      dueDate: null
+                      createdAt: '2026-04-30T12:00:00.000Z'
+                      updatedAt: '2026-04-30T15:00:00.000Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Todos]
+      summary: Delete a todo
+      operationId: deleteTodo
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Todo deleted; no response body
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Placeholder JWT bearer authentication. Replace with your issuer and
+        validation rules. Until enforced, requests without a token may still succeed in development.
+
+  parameters:
+    TodoId:
+      name: todoId
+      in: path
+      required: true
+      description: Unique todo identifier (UUID v4).
+      schema:
+        type: string
+        format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440001
+
+    CompletedFilter:
+      name: completed
+      in: query
+      required: false
+      description: When set, return only todos matching completion state.
+      schema:
+        type: boolean
+
+  schemas:
+    TodoItem:
+      type: object
+      description: Full todo representation as returned by the API.
+      required:
+        - id
+        - title
+        - completed
+        - priority
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Server-assigned identifier
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        priority:
+          type: string
+          description: Task priority
+          enum: [low, medium, high]
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+          description: Due date in ISO 8601 date form (YYYY-MM-DD)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TodoItemCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          example: Write specification
+        description:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+          default: false
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+
+    TodoItemReplace:
+      type: object
+      required:
+        - title
+        - completed
+        - priority
+      properties:
+        title:
+          type: string
+          minLength: 1
+          example: Replaced title
+        description:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, medium, high]
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+
+    TodoItemPatch:
+      type: object
+      description: At least one property should be present; validate in application code.
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, medium, high]
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+      minProperties: 1
+
+    TodoItemEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/TodoItem'
+
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable error code
+              example: VALIDATION_FAILED
+            message:
+              type: string
+              description: Human-readable summary
+            details:
+              type: array
+              description: Optional field-level or constraint violations
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                    example: body.title
+                  reason:
+                    type: string
+                    example: must not be shorter than 1 characters
+
+  responses:
+    BadRequest:
+      description: Malformed request (syntax or bad Content-Type).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            invalidJson:
+              value:
+                error:
+                  code: BAD_REQUEST
+                  message: Request body could not be parsed as JSON.
+
+    Unauthorized:
+      description: Missing or invalid authentication credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            missingToken:
+              value:
+                error:
+                  code: UNAUTHORIZED
+                  message: Authentication is required.
+
+    NotFound:
+      description: Todo not found for the given identifier.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            unknownId:
+              value:
+                error:
+                  code: NOT_FOUND
+                  message: Todo with the specified id does not exist.
+
+    Conflict:
+      description: Version or state conflict (e.g. concurrent modification).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            conflict:
+              value:
+                error:
+                  code: CONFLICT
+                  message: Resource was modified by another request.
+
+    UnprocessableEntity:
+      description: Semantically invalid input (validation failed).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            validation:
+              value:
+                error:
+                  code: VALIDATION_FAILED
+                  message: One or more fields failed validation.
+                  details:
+                    - path: body.title
+                      reason: must not be shorter than 1 characters
+
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            generic:
+              value:
+                error:
+                  code: INTERNAL_ERROR
+                  message: An unexpected error occurred.
