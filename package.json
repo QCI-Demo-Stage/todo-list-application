@@ -1,0 +1,30 @@
+{
+  "name": "todo-list-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Todo REST API with OpenAPI documentation",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "NODE_ENV=development ts-node src/server.ts",
+    "lint:spec": "speccy lint api-spec.yaml --rules strict"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/yamljs": "^0.2.34",
+    "speccy": "^0.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}
