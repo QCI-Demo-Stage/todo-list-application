@@ -15,8 +15,8 @@ info:
     email: api-support@example.com
 
 servers:
-  - url: http://localhost:3000
-    description: Local development
+  - url: http://localhost:8000
+    description: Local default (staging)
   - url: https://api.todo-app.local/v1
     description: Production (placeholder host)
 

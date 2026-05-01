@@ -14,7 +14,8 @@ export function createApp(): Express {
     res.status(200).json({ status: 'ok' });
   });
 
-  if (process.env.NODE_ENV === 'development') {
+  const nodeEnv = process.env.NODE_ENV ?? 'staging';
+  if (nodeEnv === 'development' || nodeEnv === 'staging') {
     const swaggerDocument = YAML.load(OPENAPI_FILE);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   }
