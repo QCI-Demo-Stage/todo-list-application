@@ -13,7 +13,7 @@ High-level request routing for the Todo REST service defined in [`api-spec.yaml`
 ```mermaid
 flowchart TB
   Client[Client / API consumer]
-  Server[Go HTTP server]
+  Server[Node.js HTTP server]
   Health[GET /health]
   Docs["/api-docs\nSwagger UI\n(staging & development)"]
   ListCreate["GET /todos — list\nPOST /todos — create"]
@@ -28,7 +28,7 @@ flowchart TB
 
 ## Prerequisites
 
-- **Go** 1.22 or newer
+- **Node.js** 18 or newer
 - **Git**
 
 ## Getting started
@@ -43,20 +43,19 @@ flowchart TB
 2. Run the API server (default port **8000**, default `NODE_ENV` **staging** so `/api-docs` is available):
 
    ```bash
-   go run .
+   npm start
    ```
 
-3. Optional: build a binary:
+   Or run the entrypoint directly:
 
    ```bash
-   go build -o todo-api .
-   ./todo-api
+   node server.js
    ```
 
-4. Run tests:
+3. Run tests:
 
    ```bash
-   go test ./...
+   npm test
    ```
 
 ## Configuration
