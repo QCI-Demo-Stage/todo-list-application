@@ -8,23 +8,7 @@ This project hosts the todo list application source and related artifacts (inclu
 
 ## API flow
 
-High-level request routing for the Todo REST service defined in [`api-spec.yaml`](api-spec.yaml). By default the server runs in **staging** mode on port **8000**. In staging or development, interactive docs are served from `/api-docs`.
-
-```mermaid
-flowchart TB
-  Client[Client / API consumer]
-  Server[Node.js HTTP server]
-  Health[GET /health]
-  Docs["/api-docs\nSwagger UI\n(staging & development)"]
-  ListCreate["GET /todos — list\nPOST /todos — create"]
-  ById["GET /todos/:todoId — read\nPUT /todos/:todoId — replace\nPATCH /todos/:todoId — partial update\nDELETE /todos/:todoId — delete"]
-
-  Client --> Server
-  Server --> Health
-  Server --> Docs
-  Server --> ListCreate
-  Server --> ById
-```
+High-level request routing for the Todo REST service is documented in **[`docs/api-flow.md`](docs/api-flow.md)** (Mermaid diagram). The OpenAPI contract lives in [`api-spec.yaml`](api-spec.yaml). By default the server runs in **staging** mode on port **8000**. In staging or development, interactive docs are served from `/api-docs`.
 
 ## Prerequisites
 
