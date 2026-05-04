@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -75,15 +75,13 @@ export function start() {
   const port = listenPort();
   const nodeEnv = nodeEnvValue();
   const server = http.createServer(createRequestListener(nodeEnv));
-
   server.listen(port, () => {
     console.log(`listening on http://localhost:${port} (NODE_ENV=${nodeEnv})`);
   });
 }
 
 const isMain =
-  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
-
+  Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   start();
 }
