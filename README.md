@@ -12,7 +12,7 @@ High-level request routing for the Todo REST service is documented in **[`docs/a
 
 ## Prerequisites
 
-- **Node.js** 18 or newer
+- **Rust** (stable toolchain with Cargo)
 - **Git**
 
 ## Getting started
@@ -27,24 +27,29 @@ High-level request routing for the Todo REST service is documented in **[`docs/a
 2. Run the API server (default port **8000**, default `NODE_ENV` **staging** so `/api-docs` is available):
 
    ```bash
-   npm start
+   cargo run
    ```
 
-   Or run the entrypoint directly:
+   For an optimized binary:
 
    ```bash
-   node server.js
+   cargo run --release
    ```
 
 3. Run tests:
 
    ```bash
-   npm test
+   cargo test
    ```
 
 ## Configuration
 
 Do not commit secrets. Copy environment templates if provided and use a local `.env` file (ignored by Git).
+
+Environment variables match the prior Node deployment story:
+
+- **`PORT`** — listen port (default **8000**; invalid values fall back to **8000**).
+- **`NODE_ENV`** — **`staging`** or **`development`** serves `/api-spec.yaml` and `/api-docs`; other values (including **`production`**) hide docs while **`/health`** stays available. When unset, the server behaves like **`staging`**.
 
 ## Contributing
 

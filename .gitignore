@@ -2,6 +2,9 @@
 node_modules/
 vendor/
 
+# Rust
+/target/
+
 # Env
 .env
 .env.local
