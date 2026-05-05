@@ -12,7 +12,7 @@ High-level request routing for the Todo REST service is documented in **[`docs/a
 
 ## Prerequisites
 
-- **Rust** (stable toolchain with Cargo)
+- **Java 21** (or newer) and **Apache Maven** 3.9+
 - **Git**
 
 ## Getting started
@@ -27,19 +27,13 @@ High-level request routing for the Todo REST service is documented in **[`docs/a
 2. Run the API server (default port **8000**, default `NODE_ENV` **staging** so `/api-docs` is available):
 
    ```bash
-   cargo run
-   ```
-
-   For an optimized binary:
-
-   ```bash
-   cargo run --release
+   mvn -q exec:java
    ```
 
 3. Run tests:
 
    ```bash
-   cargo test
+   mvn -q test
    ```
 
 ## Configuration

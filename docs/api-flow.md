@@ -1,11 +1,11 @@
 # Todo API — request flow
 
-High-level routing for the Todo REST service defined in [`api-spec.yaml`](../api-spec.yaml). The Rust server (Axum) runs on port **8000** by default. When `NODE_ENV` is **staging** or **development**, the OpenAPI spec and Swagger UI are served; in **production**, documentation routes return 404 while `/health` remains available.
+High-level routing for the Todo REST service defined in [`api-spec.yaml`](../api-spec.yaml). The Java server ([Javalin](https://javalin.io)) runs on port **8000** by default. When `NODE_ENV` is **staging** or **development**, the OpenAPI spec and Swagger UI are served; in **production**, documentation routes return 404 while `/health` remains available.
 
 ```mermaid
 flowchart TB
   Client[Client / API consumer]
-  Server[Rust HTTP server (Axum)]
+  Server[Java HTTP server (Javalin)]
   Health[GET /health]
   Docs["/api-docs — Swagger UI\n(staging & development)"]
   ListCreate["GET /todos — list\nPOST /todos — create"]

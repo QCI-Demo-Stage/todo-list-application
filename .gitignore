@@ -2,8 +2,11 @@
 node_modules/
 vendor/
 
-# Rust
+# Rust (legacy)
 /target/
+
+# Java / Maven
+target/
 
 # Env
 .env
