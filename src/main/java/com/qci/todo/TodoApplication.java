@@ -8,8 +8,7 @@ public final class TodoApplication {
 
     public static void main(String[] args) throws Exception {
         String deployEnv = TodoServer.deployEnvFromProcess();
-        byte[][] assets = TodoServer.loadAssets(TodoServer.workspaceRoot());
-        Javalin app = TodoServer.createApp(deployEnv, assets[0], assets[1]);
+        Javalin app = TodoServer.createAppFromWorkspace(deployEnv, TodoServer.workspaceRoot());
 
         int port = TodoServer.listenPortFromProcess();
         System.out.printf(

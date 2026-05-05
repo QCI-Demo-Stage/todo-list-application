@@ -58,6 +58,12 @@ public final class TodoServer {
         return "development".equals(deployEnv) || "staging".equals(deployEnv);
     }
 
+    /** Loads spec and Swagger HTML from {@code root}, then builds the app (fails if assets are missing). */
+    public static Javalin createAppFromWorkspace(String deployEnv, Path root) throws IOException {
+        byte[][] assets = loadAssets(root);
+        return createApp(deployEnv, assets[0], assets[1]);
+    }
+
     public static Javalin createApp(String deployEnv, byte[] openapiSpec, byte[] swaggerIndexHtml) {
         boolean docsEnabled = docsEnabledForEnv(deployEnv);
 
